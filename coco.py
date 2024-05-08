@@ -4,21 +4,22 @@ from PIL import Image
 from glob import glob
 
 
-class Places2(torch.utils.data.Dataset):
-    def __init__(self, img_root, mask_root, img_transform, mask_transform,
-                 split='train'):
-        super(Places2, self).__init__()
+class Coco(torch.utils.data.Dataset):
+    def __init__(self, img_root, mask_root, img_transform, mask_transform, data_num = 0, infer = False):
+        super(Coco, self).__init__()
         self.img_transform = img_transform
         self.mask_transform = mask_transform
+        self.infer = infer
+        self.data_num = data_num
 
         # use about 8M images in the challenge dataset
-        if split == 'train':
-            self.paths = glob('{:s}/data_large/**/*.jpg'.format(img_root),
-                              recursive=True)
+        if self.infer:
+            self.paths = glob('{:s}/test2017/*.jpg'.format(img_root))
+            self.mask_paths = glob('{:s}/test_mask/*.png'.format(mask_root))
         else:
-            self.paths = glob('{:s}/{:s}_large/*'.format(img_root, split))
+            self.paths = glob('{:s}/train2017/*'.format(img_root))[:self.data_num]
+            self.mask_paths = glob('{:s}/train_mask/*.png'.format(mask_root))
 
-        self.mask_paths = glob('{:s}/*.jpg'.format(mask_root))
         self.N_mask = len(self.mask_paths)
 
     def __getitem__(self, index):

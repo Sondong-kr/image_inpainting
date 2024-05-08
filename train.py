@@ -12,7 +12,7 @@ from evaluation import evaluate
 from loss import InpaintingLoss
 from net import PConvUNet
 from net import VGG16FeatureExtractor
-from places2 import Places2
+from coco import Coco
 from util.io import load_ckpt
 from util.io import save_ckpt
 
@@ -41,19 +41,20 @@ class InfiniteSampler(data.sampler.Sampler):
 
 parser = argparse.ArgumentParser()
 # training options
-parser.add_argument('--root', type=str, default='/srv/datasets/Places2')
-parser.add_argument('--mask_root', type=str, default='./masks')
+parser.add_argument('--root', type=str, default='./dataset')
+parser.add_argument('--mask_root', type=str, default='./mask')
 parser.add_argument('--save_dir', type=str, default='./snapshots/default')
 parser.add_argument('--log_dir', type=str, default='./logs/default')
 parser.add_argument('--lr', type=float, default=2e-4)
 parser.add_argument('--lr_finetune', type=float, default=5e-5)
-parser.add_argument('--max_iter', type=int, default=1000000)
-parser.add_argument('--batch_size', type=int, default=16)
-parser.add_argument('--n_threads', type=int, default=16)
-parser.add_argument('--save_model_interval', type=int, default=50000)
+parser.add_argument('--train_data_num', type=int, default=30000) #  default=118287
+parser.add_argument('--max_iter', type=int, default=300000) #  default=1000000
+parser.add_argument('--batch_size', type=int, default=4) # previous default=16 
+parser.add_argument('--n_threads', type=int, default=0) # previous default = 16
+parser.add_argument('--save_model_interval', type=int, default=7500) #default=50000
 parser.add_argument('--vis_interval', type=int, default=5000)
 parser.add_argument('--log_interval', type=int, default=10)
-parser.add_argument('--image_size', type=int, default=256)
+parser.add_argument('--image_size', type=int, default=256) # default=256
 parser.add_argument('--resume', type=str)
 parser.add_argument('--finetune', action='store_true')
 args = parser.parse_args()
@@ -76,8 +77,8 @@ img_tf = transforms.Compose(
 mask_tf = transforms.Compose(
     [transforms.Resize(size=size), transforms.ToTensor()])
 
-dataset_train = Places2(args.root, args.mask_root, img_tf, mask_tf, 'train')
-dataset_val = Places2(args.root, args.mask_root, img_tf, mask_tf, 'val')
+dataset_train = Coco(args.root, args.mask_root, img_tf, mask_tf, data_num = args.train_data_num, infer= False)
+dataset_val = Coco(args.root, args.mask_root, img_tf, mask_tf, infer= True)
 
 iterator_train = iter(data.DataLoader(
     dataset_train, batch_size=args.batch_size,
@@ -117,7 +118,9 @@ for i in tqdm(range(start_iter, args.max_iter)):
         loss += value
         if (i + 1) % args.log_interval == 0:
             writer.add_scalar('loss_{:s}'.format(key), value.item(), i + 1)
-
+    epoch = args.max_iter/(args.train_data_num/args.batch_size)
+    if isinstance(epoch, int):
+        print('loss for {:d}epoch: {:d}'.format(loss ,epoch))
     optimizer.zero_grad()
     loss.backward()
     optimizer.step()
