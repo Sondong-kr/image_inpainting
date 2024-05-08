@@ -1,8 +1,9 @@
 *.txt
 logs
 snapshots
-masks
+mask
 .idea
 *.jpg
 *.png
 dataset
+experiment_record
