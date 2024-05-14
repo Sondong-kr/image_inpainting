@@ -7,3 +7,4 @@ mask
 *.png
 dataset
 experiment_record
+*.pth
