@@ -8,3 +8,4 @@ mask
 dataset
 experiment_record
 *.pth
+mask_category

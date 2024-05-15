@@ -48,12 +48,12 @@ parser.add_argument('--log_dir', type=str, default='./logs/default')
 parser.add_argument('--lr', type=float, default=2e-4)
 parser.add_argument('--lr_finetune', type=float, default=5e-5)
 parser.add_argument('--train_data_num', type=int, default=30000) #  default=118287
-parser.add_argument('--max_iter', type=int, default=300000) #  default=1000000
+parser.add_argument('--max_iter', type=int, default=150000) #  default=1000000
 parser.add_argument('--batch_size', type=int, default=4) # previous default=16 
 parser.add_argument('--n_threads', type=int, default=0) # previous default = 16
 parser.add_argument('--save_model_interval', type=int, default=7500) #default=50000
 parser.add_argument('--vis_interval', type=int, default=5000)
-parser.add_argument('--log_interval', type=int, default=10)
+parser.add_argument('--log_interval', type=int, default=10000)
 parser.add_argument('--image_size', type=int, default=256) # default=256
 parser.add_argument('--resume', type=str)
 parser.add_argument('--finetune', action='store_true')

@@ -17,7 +17,7 @@ class Coco(torch.utils.data.Dataset):
             self.paths = glob('{:s}/test2017/*.jpg'.format(img_root))
             self.mask_paths = glob('{:s}/test_mask/*.png'.format(mask_root))
         else:
-            self.paths = glob('{:s}/train2017/*'.format(img_root))[:self.data_num]
+            self.paths = glob('{:s}/test2017/*'.format(img_root))[:self.data_num]
             self.mask_paths = glob('{:s}/train_mask/*.png'.format(mask_root))
 
         self.N_mask = len(self.mask_paths)
