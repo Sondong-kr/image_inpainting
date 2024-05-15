@@ -9,6 +9,8 @@ from tqdm import tqdm
 
 import opt
 from evaluation import evaluate
+from score import cal_psnr
+from score import cal_ssim
 from loss import InpaintingLoss
 from net import PConvUNet
 from net import VGG16FeatureExtractor
@@ -105,6 +107,8 @@ if args.resume:
         param_group['lr'] = lr
     print('Starting from iter ', start_iter)
 
+total_psnr = 0
+total_ssim = 0
 for i in tqdm(range(start_iter, args.max_iter)):
     model.train()
 
@@ -118,9 +122,23 @@ for i in tqdm(range(start_iter, args.max_iter)):
         loss += value
         if (i + 1) % args.log_interval == 0:
             writer.add_scalar('loss_{:s}'.format(key), value.item(), i + 1)
-    epoch = args.max_iter/(args.train_data_num/args.batch_size)
-    if isinstance(epoch, int):
-        print('loss for {:d}epoch: {:d}'.format(loss ,epoch))
+
+    epoch_size = args.train_data_num/args.batch_size
+    epoch = i//epoch_size
+    
+    psnr = cal_psnr(output, gt)
+    ssim = cal_ssim(output, gt)
+    total_psnr += psnr
+    total_ssim += ssim
+    avg_psnr = total_psnr / len(epoch_size)
+    avg_ssim = total_ssim / len(epoch_size)
+
+    if i % epoch_size==0:
+        print('loss for {:d}epoch: {:d}'.format(epoch, loss))
+        print('PSNR for {:d}epoch: {:d}'.format(epoch, avg_psnr))
+        print('SSIM for {:d}epoch: {:d}'.format(epoch, avg_ssim))
+    
+
     optimizer.zero_grad()
     loss.backward()
     optimizer.step()
