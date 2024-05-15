@@ -49,7 +49,7 @@ parser.add_argument('--save_dir', type=str, default='./snapshots/default')
 parser.add_argument('--log_dir', type=str, default='./logs/default')
 parser.add_argument('--lr', type=float, default=2e-4)
 parser.add_argument('--lr_finetune', type=float, default=5e-5)
-parser.add_argument('--train_data_num', type=int, default=30000) #  default=118287
+parser.add_argument('--train_data_num', type=int, default=40000) #  default=118287
 parser.add_argument('--max_iter', type=int, default=150000) #  default=1000000
 parser.add_argument('--batch_size', type=int, default=4) # previous default=16 
 parser.add_argument('--n_threads', type=int, default=0) # previous default = 16
@@ -109,6 +109,7 @@ if args.resume:
 
 total_psnr = 0
 total_ssim = 0
+min_loss = float('inf')
 for i in tqdm(range(start_iter, args.max_iter)):
     model.train()
 
@@ -126,18 +127,26 @@ for i in tqdm(range(start_iter, args.max_iter)):
     epoch_size = args.train_data_num/args.batch_size
     epoch = i//epoch_size
     
-    psnr = cal_psnr(output, gt)
-    ssim = cal_ssim(output, gt)
-    total_psnr += psnr
-    total_ssim += ssim
-    avg_psnr = total_psnr / len(epoch_size)
-    avg_ssim = total_ssim / len(epoch_size)
+    # psnr = cal_psnr(output, gt)
+    # ssim = cal_ssim(output, gt)
+    # total_psnr += psnr
+    # total_ssim += ssim
+    # avg_psnr = total_psnr / len(epoch_size)
+    # avg_ssim = total_ssim / len(epoch_size)
 
     if i % epoch_size==0:
-        print('loss for {:d}epoch: {:d}'.format(epoch, loss))
-        print('PSNR for {:d}epoch: {:d}'.format(epoch, avg_psnr))
-        print('SSIM for {:d}epoch: {:d}'.format(epoch, avg_ssim))
-    
+        print('loss for {:d}epoch: {:f}'.format(epoch, loss))
+        # print('PSNR for {:d}epoch: {:d}'.format(epoch, avg_psnr))
+        # print('SSIM for {:d}epoch: {:d}'.format(epoch, avg_ssim))
+        if min_loss > loss:
+            min_loss = loss
+            best_model = model
+            state_dict = model.state_dict()
+            best_epoch = (i % epoch_size) +1
+            print(f"Epoch [{best_epoch}] New Minimum Valid Loss!")
+            print("..save current best model..")
+            model_name = f'epoch {epoch}_current_best_model.pt'
+            torch.save(state_dict, './model'+'/'+model_name)
 
     optimizer.zero_grad()
     loss.backward()
