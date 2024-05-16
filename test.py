@@ -15,7 +15,7 @@ from score import cal_ssim
 
 parser = argparse.ArgumentParser()
 # training options
-parser.add_argument('--root', type=str, default='./data/test2017')
+parser.add_argument('--root', type=str, default='./dataset')
 parser.add_argument('--mask_root', type=str, default='./mask')
 parser.add_argument('--snapshot', type=str, default='')
 parser.add_argument('--image_size', type=int, default=256)
@@ -37,9 +37,9 @@ test_loader = data.DataLoader(dataset_test, batch_size=args.batch_size, sampler=
 
 
 model = PConvUNet().to(device)
-load_ckpt(args.snapshot, [('model', model)])
+# load_ckpt(args.snapshot, [('model', model)])
 
-model.load_state_dict(torch.load('./logs/models/epoch 6_current_best_model.pt'))
+model.load_state_dict(torch.load('./model/epoch 11_current_best_model.pt'))
 model.eval()
 total_psnr = 0.0
 total_ssim = 0.0
@@ -48,17 +48,18 @@ with torch.no_grad():
     for i, (img, mask, gt) in tqdm(enumerate(test_loader)):
         img, mask, gt = img.to(device), mask.to(device), gt.to(device)
         output, _ = model(img, mask)
-
+        output = output.cpu().detach()
+        gt = gt.cpu().detach()
         psnr = cal_psnr(output, gt)
-        ssim_value = cal_ssim(output, gt)
+        # ssim_value = cal_ssim(output, gt)
         total_psnr += psnr
-        total_ssim += ssim_value
+        # total_ssim += ssim_value
         count += 1
 
     avg_psnr = total_psnr / count
-    avg_ssim = total_ssim / count
+    # avg_ssim = total_ssim / count/
 
-print('PSNR : {:d}'.format(avg_psnr))
-print('SSIM : {:d}'.format(avg_ssim))
+print('PSNR : {:f}'.format(avg_psnr))
+# print('SSIM : {:d}'.format(avg_ssim))
 
 evaluate(model, dataset_test, device, 'result.jpg')
