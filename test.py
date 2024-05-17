@@ -38,8 +38,7 @@ test_loader = data.DataLoader(dataset_test, batch_size=args.batch_size, sampler=
 
 model = PConvUNet().to(device)
 # load_ckpt(args.snapshot, [('model', model)])
-
-model.load_state_dict(torch.load('./model/epoch 11_current_best_model.pt'))
+model.load_state_dict(torch.load('./model/epoch 16_current_best_model.pt'))
 model.eval()
 total_psnr = 0.0
 total_ssim = 0.0
