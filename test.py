@@ -50,15 +50,15 @@ with torch.no_grad():
         output = output.cpu().detach()
         gt = gt.cpu().detach()
         psnr = cal_psnr(output, gt)
-        # ssim_value = cal_ssim(output, gt)
+        ssim_value = cal_ssim(output, gt)
         total_psnr += psnr
-        # total_ssim += ssim_value
+        total_ssim += ssim_value
         count += 1
 
     avg_psnr = total_psnr / count
-    # avg_ssim = total_ssim / count/
+    avg_ssim = total_ssim / count
 
 print('PSNR : {:f}'.format(avg_psnr))
-# print('SSIM : {:d}'.format(avg_ssim))
+print('SSIM : {:f}'.format(avg_ssim))
 
 evaluate(model, dataset_test, device, 'result.jpg')
