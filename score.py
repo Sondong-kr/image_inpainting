@@ -22,11 +22,15 @@ def cal_psnr(image1, image2):
     return psnr
 
 def cal_ssim(image1, image2):
-    if isinstance(image1, torch.Tensor):
-        image1 = image1.cpu().numpy()
-    if isinstance(image2, torch.Tensor):
-        image2 = image2.cpu().numpy()
+    ssim_vals = []
+    for i in range(image1.shape[0]):
+        img1 = image1[i].cpu().numpy()
+        img2 = image2[i].cpu().numpy()
+        
+        img1 = np.transpose(img1, (1, 2, 0))
+        img2 = np.transpose(img2, (1, 2, 0))
 
-    ssim_val, diff = ssim(image1, image2, win_size= 7, channel_axis= 0, full=True)
-    diff = (diff * 255).astype("uint8")
-    return ssim_val
+        # SSIM 계산
+        ssim_val, _ = ssim(img1, img2, win_size=7, channel_axis=2, full=True, data_range=1.0)
+        ssim_vals.append(ssim_val)
+    return np.mean(ssim_vals)

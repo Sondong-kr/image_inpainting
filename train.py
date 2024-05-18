@@ -54,7 +54,7 @@ parser.add_argument('--max_iter', type=int, default=200000) #  default=1000000
 parser.add_argument('--batch_size', type=int, default=4) # previous default=16 
 parser.add_argument('--n_threads', type=int, default=0) # previous default = 16
 parser.add_argument('--save_model_interval', type=int, default=7500) #default=50000
-parser.add_argument('--vis_interval', type=int, default=5000)
+parser.add_argument('--vis_interval', type=int, default=50000)
 parser.add_argument('--log_interval', type=int, default=10000)
 parser.add_argument('--image_size', type=int, default=256) # default=256
 parser.add_argument('--resume', type=str)

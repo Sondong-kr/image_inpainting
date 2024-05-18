@@ -47,8 +47,6 @@ with torch.no_grad():
     for i, (img, mask, gt) in tqdm(enumerate(test_loader)):
         img, mask, gt = img.to(device), mask.to(device), gt.to(device)
         output, _ = model(img, mask)
-        output = output.cpu().detach()
-        gt = gt.cpu().detach()
         psnr = cal_psnr(output, gt)
         ssim_value = cal_ssim(output, gt)
         total_psnr += psnr
