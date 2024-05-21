@@ -22,7 +22,7 @@ def cal_psnr(image1, image2):
     return psnr
 
 def cal_ssim(image1, image2):
-    ssim_vals = []
+    ssim_vals = [] #[4, 3, 256, 256]
     for i in range(image1.shape[0]):
         img1 = image1[i].cpu().numpy()
         img2 = image2[i].cpu().numpy()
@@ -30,7 +30,6 @@ def cal_ssim(image1, image2):
         img1 = np.transpose(img1, (1, 2, 0))
         img2 = np.transpose(img2, (1, 2, 0))
 
-        # SSIM 계산
         ssim_val, _ = ssim(img1, img2, win_size=7, channel_axis=2, full=True, data_range=1.0)
         ssim_vals.append(ssim_val)
     return np.mean(ssim_vals)

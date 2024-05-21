@@ -13,6 +13,19 @@ from tqdm import tqdm
 from score import cal_psnr
 from score import cal_ssim
 
+import random
+import numpy as np
+import os
+def fix_seed(seed):
+    random.seed(seed)
+    np.random.seed(seed)
+    os.environ["PYTHONHASHSEED"] = str(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)  # type: ignore
+    torch.backends.cudnn.deterministic = True  # type: ignore
+    torch.backends.cudnn.benchmark = True  # type: ignore
+fix_seed(0)
+
 parser = argparse.ArgumentParser()
 # training options
 parser.add_argument('--root', type=str, default='./dataset')
@@ -39,6 +52,8 @@ test_loader = data.DataLoader(dataset_test, batch_size=args.batch_size, sampler=
 model = PConvUNet().to(device)
 # load_ckpt(args.snapshot, [('model', model)])
 model.load_state_dict(torch.load('./model/epoch 16_current_best_model.pt'))
+# model.load_state_dict(torch.load('./model/epoch 19_current_best_model.pt'))
+
 model.eval()
 total_psnr = 0.0
 total_ssim = 0.0

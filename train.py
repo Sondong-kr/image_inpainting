@@ -88,6 +88,7 @@ iterator_train = iter(data.DataLoader(
     num_workers=args.n_threads))
 print(len(dataset_train))
 model = PConvUNet().to(device)
+model.load_state_dict(torch.load('./model/epoch 16_current_best_model.pt'))
 
 if args.finetune:
     lr = args.lr_finetune
