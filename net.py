@@ -52,13 +52,14 @@ class VGG16FeatureExtractor(nn.Module):
 
 class PartialConv(nn.Module):
     def __init__(self, in_channels, out_channels, kernel_size, stride=1,
-                 padding=0, dilation=1, groups=1, bias=True):
+                 padding=0, dilation=1, groups=1, bias=True, threshold=2):
         super().__init__()
         self.input_conv = nn.Conv2d(in_channels, out_channels, kernel_size,
                                     stride, padding, dilation, groups, bias)
         self.mask_conv = nn.Conv2d(in_channels, out_channels, kernel_size,
                                    stride, padding, dilation, groups, False)
         self.input_conv.apply(weights_init('kaiming'))
+        self.threshold = threshold
 
         torch.nn.init.constant_(self.mask_conv.weight, 1.0)
 
@@ -81,7 +82,8 @@ class PartialConv(nn.Module):
         with torch.no_grad():
             output_mask = self.mask_conv(mask)
 
-        no_update_holes = output_mask == 0
+        no_update_holes = output_mask <= self.threshold
+        # no_update_holes = output_mask == 0
         mask_sum = output_mask.masked_fill_(no_update_holes, 1.0)
 
         output_pre = (output - output_bias) / mask_sum + output_bias
